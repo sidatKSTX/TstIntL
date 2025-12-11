@@ -1,0 +1,39 @@
+variable:
+  name: GITHUB_CONNECTOR
+  identifier: GITHUB_CONNECTOR
+  orgIdentifier: default
+  projectIdentifier: default_project
+  type: String
+  spec:
+    valueType: FIXED
+    fixedValue: SIDKSTX
+---
+variable:
+  name: DOCKER_CONNECTOR
+  identifier: DOCKER_CONNECTOR
+  orgIdentifier: default
+  projectIdentifier: default_project
+  type: String
+  spec:
+    valueType: FIXED
+    fixedValue: hrnsdkr
+---
+variable:
+  name: REPO_NAME
+  identifier: REPO_NAME
+  orgIdentifier: default
+  projectIdentifier: default_project
+  type: String
+  spec:
+    valueType: FIXED
+    fixedValue: TstIntL
+---
+variable:
+  name: MAVEN_IMAGE
+  identifier: MAVEN_IMAGE
+  orgIdentifier: default
+  projectIdentifier: default_project
+  type: String
+  spec:
+    valueType: FIXED
+    fixedValue: maven:3.9-eclipse-temurin-17
