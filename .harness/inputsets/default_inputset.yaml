@@ -6,19 +6,6 @@ inputSet:
   projectIdentifier: default_project
   pipeline:
     identifier: java_ti_demo
-    variables:
-      - name: GITHUB_CONNECTOR
-        type: String
-        value: SIDKSTX
-      - name: DOCKER_CONNECTOR
-        type: String
-        value: hrnsdkr
-      - name: REPO_NAME
-        type: String
-        value: TstIntL
-      - name: MAVEN_IMAGE
-        type: String
-        value: maven:3.9-eclipse-temurin-17
     properties:
       ci:
         codebase:
