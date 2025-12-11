@@ -1,0 +1,19 @@
+connector:
+  name: hrns-dkr
+  identifier: hrnsdkr
+  description: ""
+  accountIdentifier: Ihw0aQHERgOAOXRYHccCDQ
+  orgIdentifier: default
+  projectIdentifier: default_project
+  type: DockerRegistry
+  spec:
+    dockerRegistryUrl: https://index.docker.io/v2/
+    providerType: DockerHub
+    auth:
+      type: UsernamePassword
+      spec:
+        username: studv01
+        passwordRef: dkr_key
+    executeOnDelegate: false
+    proxy: false
+    ignoreTestConnection: false

@@ -1,14 +1,14 @@
 pipeline:
   name: Java Test Intelligence Demo
   identifier: java_ti_demo
-  projectIdentifier: ci_demo
-  orgIdentifier: demo_org
+  projectIdentifier: default_project
+  orgIdentifier: default
   tags: {}
   properties:
     ci:
       codebase:
-        connectorRef: account.github_connector
-        repoName: harness-demo-java
+        connectorRef: <+variable.GITHUB_CONNECTOR>
+        repoName: <+variable.REPO_NAME>
         build: <+input>
   stages:
     - stage:
@@ -18,11 +18,12 @@ pipeline:
         type: CI
         spec:
           cloneCodebase: true
-          infrastructure:
-            type: KubernetesHosted
-            spec:
-              identifier: harness_cloud
-              os: Linux
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
           execution:
             steps:
               - step:
@@ -30,8 +31,8 @@ pipeline:
                   name: Build
                   identifier: build
                   spec:
-                    connectorRef: account.dockerhub
-                    image: maven:3.9-eclipse-temurin-17
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
                     shell: Sh
                     command: |
                       echo "=== Building Application ==="
@@ -47,8 +48,8 @@ pipeline:
                   name: Run Tests with Intelligence
                   identifier: run_tests
                   spec:
-                    connectorRef: account.dockerhub
-                    image: maven:3.9-eclipse-temurin-17
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
                     language: Java
                     buildTool: Maven
                     args: test
@@ -79,8 +80,8 @@ pipeline:
                   name: Package
                   identifier: package
                   spec:
-                    connectorRef: account.dockerhub
-                    image: maven:3.9-eclipse-temurin-17
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
                     shell: Sh
                     command: |
                       echo "=== Packaging Application ==="
