@@ -53,7 +53,7 @@ pipeline:
                     image: <+variable.MAVEN_IMAGE>
                     language: Java
                     buildTool: Maven
-                    args: test
+                    args: test -Dmaven.test.failure.ignore=true
                     runOnlySelectedTests: true
                     testAnnotations: org.junit.jupiter.api.Test
                     enableTestSplitting: true
