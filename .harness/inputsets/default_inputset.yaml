@@ -1,5 +1,6 @@
 inputSet:
   name: default_inputset
+  tags: {}
   identifier: default_inputset
   orgIdentifier: default
   projectIdentifier: default_project
@@ -24,4 +25,4 @@ inputSet:
           build:
             type: branch
             spec:
-              branch: <+input>
+              branch: main
