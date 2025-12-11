@@ -4,19 +4,6 @@ pipeline:
   projectIdentifier: default_project
   orgIdentifier: default
   tags: {}
-  variables:
-    - name: GITHUB_CONNECTOR
-      type: String
-      value: <+input>
-    - name: DOCKER_CONNECTOR
-      type: String
-      value: <+input>
-    - name: REPO_NAME
-      type: String
-      value: <+input>
-    - name: MAVEN_IMAGE
-      type: String
-      value: <+input>
   properties:
     ci:
       codebase:
