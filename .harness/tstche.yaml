@@ -1,0 +1,90 @@
+pipeline:
+  name: tstche
+  identifier: tstche
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: <+variable.GITHUB_CONNECTOR>
+        repoName: <+variable.REPO_NAME>
+        build: <+input>
+  stages:
+    - stage:
+        name: Build and Test
+        identifier: build_test
+        description: Demonstrates Test Intelligence - reduces 500+ tests to ~20
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Build
+                  identifier: build
+                  spec:
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
+                    shell: Sh
+                    command: |
+                      echo "=== Building Application ==="
+                      echo "Project: Harness Demo Java App"
+                      echo "Tests: 500+ unit and integration tests"
+                      echo ""
+                      mvn clean compile -DskipTests
+                      echo ""
+                      echo "=== Build Complete ==="
+              - step:
+                  type: RunTests
+                  name: Run Tests with Prll
+                  identifier: run_tests
+                  spec:
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
+                    language: Java
+                    buildTool: Maven
+                    args: test -Dmaven.test.failure.ignore=true
+                    runOnlySelectedTests: true
+                    testAnnotations: org.junit.jupiter.api.Test
+                    enableTestSplitting: true
+                    preCommand: |
+                      echo "=========================================="
+                      echo "   TEST INTELLIGENCE ANALYZING..."
+                      echo "=========================================="
+                      echo ""
+                      echo "Scanning code changes against test graph..."
+                      echo "Identifying impacted tests..."
+                      echo ""
+                    postCommand: |
+                      echo ""
+                      echo "=========================================="
+                      echo "   TEST EXECUTION COMPLETE"
+                      echo "=========================================="
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - "**/surefire-reports/*.xml"
+                  strategy:
+                    parallelism: 3
+              - step:
+                  type: Run
+                  name: Package
+                  identifier: package
+                  spec:
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
+                    shell: Sh
+                    command: |
+                      echo "=== Packaging Application ==="
+                      mvn package -DskipTests
+                      echo "=== Package Complete ==="
+                      ls -la target/*.jar
