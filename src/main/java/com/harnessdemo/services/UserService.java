@@ -86,10 +86,10 @@ public class UserService {
     // DEMO: Add this method during the demo to show
     // Test Intelligence selecting only related tests
     // =============================================
-    // public boolean validateEmail(String email) {
-    //     if (email == null || email.isEmpty()) {
-    //         return false;
-    //     }
-    //     return email.contains("@") && email.contains(".");
-    // }
+    public boolean validateEmail(String email) {
+         if (email == null || email.isEmpty()) {
+             return false;
+         }
+         return email.contains("@") && email.contains(".");
+     }
 }
