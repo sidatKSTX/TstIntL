@@ -20,8 +20,6 @@ pipeline:
           cloneCodebase: true
           caching:
             enabled: true
-            paths:
-              - /root/.m2/repository
           platform:
             os: Linux
             arch: Amd64
