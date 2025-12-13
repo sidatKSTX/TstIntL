@@ -24,15 +24,15 @@
         <!-- Target: Fix ALL remaining 18 CVEs from baseline              -->
         <!-- ============================================================ -->
 
-        <!-- Spring Boot 3.4.1 - Latest stable (Dec 2024) -->
-        <spring-boot.version>3.4.1</spring-boot.version>
+        <!-- Spring Boot 3.4.5 - Fixes CVE-2025-22235 (fixed in 3.4.5+) -->
+        <spring-boot.version>3.4.5</spring-boot.version>
 
         <!-- BLEEDING EDGE - Override to absolute latest versions -->
         <!-- Tomcat 11.0.11 - Fixes CVE-2025-24813 (11.0.3+) and CVE-2025-55754 (11.0.11+) -->
         <tomcat.version>11.0.11</tomcat.version>
 
-        <!-- Spring Framework 6.2.2 - Latest with 2025 CVE fixes -->
-        <spring-framework.version>6.2.2</spring-framework.version>
+        <!-- Spring Framework 6.2.11 - Fixes CVE-2025-41249 (fixed in 6.2.11+) -->
+        <spring-framework.version>6.2.11</spring-framework.version>
 
         <!-- Logback 1.5.16 - Latest with CVE fixes -->
         <logback.version>1.5.16</logback.version>
