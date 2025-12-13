@@ -57,31 +57,13 @@
         </dependency>
 
         <!-- ============================================================ -->
-        <!-- VULNERABLE DEPENDENCIES FOR STO DEMO -->
-        <!-- These dependencies contain known CVEs for demonstration -->
+        <!-- REMEDIATED: Vulnerable dependencies removed -->
+        <!-- Following AIDA guidance to fix security vulnerabilities -->
         <!-- ============================================================ -->
-
-        <!-- CRITICAL: Log4j 2.14.1 - Log4Shell (CVE-2021-44228) -->
-        <!-- This is the infamous Log4Shell vulnerability -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.14.1</version>
-        </dependency>
-
-        <!-- HIGH: Jackson Databind with deserialization vulnerability -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.9.8</version>
-        </dependency>
-
-        <!-- MEDIUM: Commons Collections with gadget chain vulnerability -->
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.1</version>
-        </dependency>
+        <!-- REMOVED: log4j-core 2.14.1 (CVE-2021-44228 Log4Shell) -->
+        <!-- REMOVED: jackson-databind 2.9.8 (50+ deserialization CVEs) -->
+        <!-- REMOVED: commons-collections 3.2.1 (CVE-2015-7501) -->
+        <!-- ============================================================ -->
 
         <!-- Testing -->
         <dependency>
