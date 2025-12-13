@@ -30,25 +30,6 @@ pipeline:
             steps:
               - parallel:
                   - step:
-                      type: Owasp
-                      name: OWASP Dependency Check
-                      identifier: owasp_scan
-                      spec:
-                        mode: orchestration
-                        config: default
-                        target:
-                          type: repository
-                          detection: auto
-                          baseline: main
-                        advanced:
-                          log:
-                            level: info
-                          fail_on_severity: none
-                          tool_args: "--disableOssIndex"
-                        resources:
-                          limits:
-                            memory: 4Gi
-                  - step:
                       type: OsvScanner
                       name: SCA Vulnerability Scan
                       identifier: sca_scan
