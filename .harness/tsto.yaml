@@ -44,6 +44,7 @@ pipeline:
                           log:
                             level: info
                           fail_on_severity: none
+                          tool_args: "--disableOssIndex"
                         resources:
                           limits:
                             memory: 4Gi
