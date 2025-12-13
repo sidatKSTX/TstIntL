@@ -71,7 +71,9 @@ pipeline:
                       echo "=========================================="
 
                       # Get NEW vulnerability counts from STO output
-                      NEW_CRITICAL=<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_CRITICAL>NEW_HIGH=<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_HIGH>
+                      NEW_CRITICAL="<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_CRITICAL>"
+                      NEW_HIGH="<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_HIGH>"
+
                       echo "New Critical: $NEW_CRITICAL"
                       echo "New High: $NEW_HIGH"
 
