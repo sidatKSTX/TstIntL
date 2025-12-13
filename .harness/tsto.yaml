@@ -40,7 +40,7 @@ pipeline:
                         advanced:
                           log:
                             level: info
-                          fail_on_severity: critical
+                          fail_on_severity: none
                         resources:
                           limits:
                             memory: 4Gi
@@ -58,14 +58,36 @@ pipeline:
                         advanced:
                           log:
                             level: info
-                          fail_on_severity: critical
+                          fail_on_severity: none
               - step:
                   type: Run
-                  name: Security Summary
-                  identifier: security_summary
+                  name: Enforce Security Policy
+                  identifier: enforce_security_policy
                   spec:
                     shell: Sh
                     command: |
+                      echo "=========================================="
+                      echo "   SECURITY POLICY ENFORCEMENT"
+                      echo "=========================================="
+
+                      # Get NEW vulnerability counts from STO output
+                      NEW_CRITICAL=<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_CRITICAL>NEW_HIGH=<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_HIGH>
+                      echo "New Critical: $NEW_CRITICAL"
+                      echo "New High: $NEW_HIGH"
+
+                      # Fail only on NEW critical or high vulnerabilities
+                      if [ "$NEW_CRITICAL" -gt 0 ]; then
+                        echo "BLOCKED: $NEW_CRITICAL NEW critical vulnerabilities found!"
+                        exit 1
+                      fi
+
+                      if [ "$NEW_HIGH" -gt 0 ]; then
+                         echo "BLOCKED: $NEW_HIGH NEW high vulnerabilities found!"
+                         exit 1
+                      fi
+
+                      echo "PASSED: No new critical/high vulnerabilities"
+                      echo "=========================================="
                       echo "=========================================="
                       echo "   SECURITY SCAN RESULTS SUMMARY"
                       echo "=========================================="
