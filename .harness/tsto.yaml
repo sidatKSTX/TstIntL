@@ -15,7 +15,7 @@ pipeline:
         name: Security Scan
         identifier: security_scan
         description: OWASP and SCA scans run in parallel before build
-        type: SecurityTests
+        type: CI
         spec:
           cloneCodebase: true
           platform:
