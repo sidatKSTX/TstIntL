@@ -54,6 +54,7 @@ pipeline:
                         target:
                           type: repository
                           detection: auto
+                          baseline: main
                         advanced:
                           log:
                             level: info
