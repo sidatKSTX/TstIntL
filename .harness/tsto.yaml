@@ -100,23 +100,6 @@ pipeline:
                       echo "Review findings in Harness STO dashboard"
                       echo "Use AIDA for remediation guidance"
                       echo "=========================================="
-    - stage:
-        name: Build and Test
-        identifier: build_test
-        description: Demonstrates Test Intelligence - reduces 500+ tests to ~20
-        type: CI
-        spec:
-          cloneCodebase: true
-          caching:
-            enabled: true
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Cloud
-            spec: {}
-          execution:
-            steps:
               - step:
                   type: Run
                   name: Build
