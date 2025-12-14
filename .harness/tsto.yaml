@@ -173,7 +173,7 @@ pipeline:
                           access_token: <+secrets.getValue("sonarqube_token")>
                           domain: <+variable.SONARQUBE_URL>
                         tool:
-                          project_key: sidatKSTX_TstIntL
+                          project_key: <+variable.SNR_PRJCT_KEY>
               - step:
                   type: Run
                   name: SAST Summary

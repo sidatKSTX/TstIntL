@@ -47,3 +47,13 @@ variable:
   spec:
     valueType: FIXED
     fixedValue: https://sonarcloud.io
+---
+variable:
+  name: SNR_PRJCT_KEY
+  identifier: SNR_PRJCT_KEY
+  orgIdentifier: default
+  projectIdentifier: default_project
+  type: String
+  spec:
+    valueType: FIXED
+    fixedValue: sidatKSTX_TstIntL
