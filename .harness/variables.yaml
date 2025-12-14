@@ -37,3 +37,13 @@ variable:
   spec:
     valueType: FIXED
     fixedValue: maven:3.9-eclipse-temurin-17
+---
+variable:
+  name: SONARQUBE_URL
+  identifier: SONARQUBE_URL
+  orgIdentifier: default
+  projectIdentifier: default_project
+  type: String
+  spec:
+    valueType: FIXED
+    fixedValue: https://sonarcloud.io
