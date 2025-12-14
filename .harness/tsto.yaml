@@ -1,5 +1,5 @@
 pipeline:
-  name: STO Security Demo
+  name: STO Security Demo with SAST
   identifier: sto_security_demo
   projectIdentifier: default_project
   orgIdentifier: default
@@ -14,7 +14,7 @@ pipeline:
     - stage:
         name: Security Scan
         identifier: security_scan
-        description: OWASP and SCA scans run in parallel before build
+        description: SCA scan before build, SAST scan after build
         type: CI
         spec:
           cloneCodebase: true
@@ -44,47 +44,47 @@ pipeline:
                           log:
                             level: info
                           fail_on_severity: none
-              - step:
-                  type: Run
-                  name: Enforce Security Policy
-                  identifier: enforce_security_policy
-                  spec:
-                    shell: Sh
-                    command: |
-                      echo "=========================================="
-                      echo "   SECURITY POLICY ENFORCEMENT"
-                      echo "=========================================="
+                  - step:
+                      type: Run
+                      name: Enforce Security Policy
+                      identifier: enforce_security_policy
+                      spec:
+                        shell: Sh
+                        command: |
+                          echo "=========================================="
+                          echo "   SECURITY POLICY ENFORCEMENT"
+                          echo "=========================================="
 
-                      # Get NEW vulnerability counts from STO output
-                      NEW_CRITICAL="<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_CRITICAL>"
-                      NEW_HIGH="<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_HIGH>"
+                          # Get NEW vulnerability counts from STO output
+                          NEW_CRITICAL="<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_CRITICAL>"
+                          NEW_HIGH="<+pipeline.stages.security_scan.spec.execution.steps.sca_scan.output.outputVariables.NEW_HIGH>"
 
-                      echo "New Critical: $NEW_CRITICAL"
-                      echo "New High: $NEW_HIGH"
+                          echo "New Critical: $NEW_CRITICAL"
+                          echo "New High: $NEW_HIGH"
 
-                      # Fail only on NEW critical or high vulnerabilities
-                      if [ "$NEW_CRITICAL" -gt 0 ]; then
-                        echo "BLOCKED: $NEW_CRITICAL NEW critical vulnerabilities found!"
-                        exit 1
-                      fi
+                          # Fail only on NEW critical or high vulnerabilities
+                          if [ "$NEW_CRITICAL" -gt 0 ]; then
+                            echo "BLOCKED: $NEW_CRITICAL NEW critical vulnerabilities found!"
+                            exit 1
+                          fi
 
-                      if [ "$NEW_HIGH" -gt 0 ]; then
-                         echo "BLOCKED: $NEW_HIGH NEW high vulnerabilities found!"
-                         exit 1
-                      fi
+                          if [ "$NEW_HIGH" -gt 0 ]; then
+                             echo "BLOCKED: $NEW_HIGH NEW high vulnerabilities found!"
+                             exit 1
+                          fi
 
-                      echo "PASSED: No new critical/high vulnerabilities"
-                      echo "=========================================="
-                      echo "=========================================="
-                      echo "   SECURITY SCAN RESULTS SUMMARY"
-                      echo "=========================================="
-                      echo ""
-                      echo "OWASP Dependency Check: Completed"
-                      echo "SCA Vulnerability Scan: Completed"
-                      echo ""
-                      echo "Review findings in Harness STO dashboard"
-                      echo "Use AIDA for remediation guidance"
-                      echo "=========================================="
+                          echo "PASSED: No new critical/high vulnerabilities"
+                          echo "=========================================="
+                          echo "=========================================="
+                          echo "   SECURITY SCAN RESULTS SUMMARY"
+                          echo "=========================================="
+                          echo ""
+                          echo "OWASP Dependency Check: Completed"
+                          echo "SCA Vulnerability Scan: Completed"
+                          echo ""
+                          echo "Review findings in Harness STO dashboard"
+                          echo "Use AIDA for remediation guidance"
+                          echo "=========================================="
               - step:
                   type: Run
                   name: Build
@@ -147,3 +147,63 @@ pipeline:
                       mvn package -DskipTests
                       echo "=== Package Complete ==="
                       ls -la target/*.jar
+              - step:
+                  type: Semgrep
+                  name: SAST Scan
+                  identifier: sast_scan
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: repository
+                      detection: auto
+                      baseline: main
+                    advanced:
+                      log:
+                        level: info
+                      fail_on_severity: none
+                    settings:
+                      runner:
+                        scan_settings:
+                          policy: p/java
+              - step:
+                  type: Sonarqube
+                  name: SonarQube Code Quality
+                  identifier: sonarqube_scan
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: repository
+                      detection: auto
+                      baseline: main
+                    advanced:
+                      log:
+                        level: info
+                      fail_on_severity: none
+                    auth:
+                      access_token: <+secrets.getValue("sonarqube_token")>
+                      domain: <+variable.SONARQUBE_URL>
+                    tool:
+                      project_key: harness-demo-java
+              - step:
+                  type: Run
+                  name: SAST Summary
+                  identifier: sast_summary
+                  spec:
+                    shell: Sh
+                    command: |
+                      echo "=========================================="
+                      echo "   SAST & CODE QUALITY SUMMARY"
+                      echo "=========================================="
+                      echo ""
+                      echo "Semgrep SAST Scan: Completed"
+                      echo "SonarQube Analysis: Completed"
+                      echo ""
+                      echo "Review findings in Harness STO dashboard:"
+                      echo "- Security vulnerabilities (CWE)"
+                      echo "- Code quality issues"
+                      echo "- Technical debt metrics"
+                      echo ""
+                      echo "Use AIDA for remediation guidance"
+                      echo "=========================================="
