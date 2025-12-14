@@ -134,58 +134,46 @@ pipeline:
                           - "**/surefire-reports/*.xml"
                   strategy:
                     parallelism: 3
-              - step:
-                  type: Run
-                  name: Package
-                  identifier: package
-                  spec:
-                    connectorRef: <+variable.DOCKER_CONNECTOR>
-                    image: <+variable.MAVEN_IMAGE>
-                    shell: Sh
-                    command: |
-                      echo "=== Packaging Application ==="
-                      mvn package -DskipTests
-                      echo "=== Package Complete ==="
-                      ls -la target/*.jar
-              - step:
-                  type: Semgrep
-                  name: SAST Scan
-                  identifier: sast_scan
-                  spec:
-                    mode: orchestration
-                    config: default
-                    target:
-                      type: repository
-                      detection: auto
-                      baseline: main
-                    advanced:
-                      log:
-                        level: info
-                      fail_on_severity: none
-                    settings:
-                      runner:
-                        scan_settings:
-                          policy: p/java
-              - step:
-                  type: Sonarqube
-                  name: SonarQube Code Quality
-                  identifier: sonarqube_scan
-                  spec:
-                    mode: orchestration
-                    config: default
-                    target:
-                      type: repository
-                      detection: auto
-                      baseline: main
-                    advanced:
-                      log:
-                        level: info
-                      fail_on_severity: none
-                    auth:
-                      access_token: <+secrets.getValue("sonarqube_token")>
-                      domain: <+variable.SONARQUBE_URL>
-                    tool:
-                      project_key: harness-demo-java
+              - parallel:
+                  - step:
+                      type: Semgrep
+                      name: SAST Scan
+                      identifier: sast_scan
+                      spec:
+                        mode: orchestration
+                        config: default
+                        target:
+                          type: repository
+                          detection: auto
+                          baseline: main
+                        advanced:
+                          log:
+                            level: info
+                          fail_on_severity: none
+                        settings:
+                          runner:
+                            scan_settings:
+                              policy: p/java
+                  - step:
+                      type: Sonarqube
+                      name: SonarQube Code Quality
+                      identifier: sonarqube_scan
+                      spec:
+                        mode: orchestration
+                        config: default
+                        target:
+                          type: repository
+                          detection: auto
+                          baseline: main
+                        advanced:
+                          log:
+                            level: info
+                          fail_on_severity: none
+                        auth:
+                          access_token: <+secrets.getValue("sonarqube_token")>
+                          domain: <+variable.SONARQUBE_URL>
+                        tool:
+                          project_key: harness-demo-java
               - step:
                   type: Run
                   name: SAST Summary
@@ -207,3 +195,16 @@ pipeline:
                       echo ""
                       echo "Use AIDA for remediation guidance"
                       echo "=========================================="
+              - step:
+                  type: Run
+                  name: Package
+                  identifier: package
+                  spec:
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
+                    shell: Sh
+                    command: |
+                      echo "=== Packaging Application ==="
+                      mvn package -DskipTests
+                      echo "=== Package Complete ==="
+                      ls -la target/*.jar
