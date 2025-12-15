@@ -186,7 +186,7 @@ pipeline:
                       identifier: build_push_docker
                       spec:
                         connectorRef: <+variable.DOCKER_CONNECTOR>
-                        repo: sidatkstx/harness-demo-java
+                        repo: sidatks/harness-demo-java
                         tags:
                           - <+pipeline.sequenceId>
                           - latest
@@ -231,7 +231,7 @@ pipeline:
                         target:
                           type: container
                           detection: auto
-                          name: sidatkstx/harness-demo-java
+                          name: sidatks/harness-demo-java
                           variant: <+pipeline.sequenceId>
                         advanced:
                           log:
@@ -240,7 +240,7 @@ pipeline:
                         privileged: true
                         image:
                           type: docker_v2
-                          name: sidatkstx/harness-demo-java
+                          name: sidatks/harness-demo-java
                           tag: <+pipeline.sequenceId>
                           domain: docker.io
                   - step:
@@ -253,7 +253,7 @@ pipeline:
                         target:
                           type: container
                           detection: auto
-                          name: sidatkstx/harness-demo-java
+                          name: sidatks/harness-demo-java
                           variant: <+pipeline.sequenceId>
                         advanced:
                           log:
@@ -262,7 +262,7 @@ pipeline:
                         privileged: true
                         image:
                           type: docker_v2
-                          name: sidatkstx/harness-demo-java
+                          name: sidatks/harness-demo-java
                           tag: <+pipeline.sequenceId>
                           domain: docker.io
                         auth:
@@ -282,7 +282,7 @@ pipeline:
                       echo "Aqua Trivy Container Scan: Completed"
                       echo "Docker Scout Image Scan: Completed"
                       echo ""
-                      echo "Scanned Image: sidatkstx/harness-demo-java:<+pipeline.sequenceId>"
+                      echo "Scanned Image: sidatks/harness-demo-java:<+pipeline.sequenceId>"
                       echo ""
                       echo "Scan Results:"
                       echo "- Container vulnerabilities (CVEs)"
@@ -319,7 +319,7 @@ pipeline:
                       echo "  - Docker Scout: Completed"
                       echo ""
                       echo "Artifacts Published:"
-                      echo "  - Docker Image: sidatkstx/harness-demo-java:<+pipeline.sequenceId>"
+                      echo "  - Docker Image: sidatks/harness-demo-java:<+pipeline.sequenceId>"
                       echo "  - JAR: test-intelligence-demo-1.0.0-<+pipeline.sequenceId>.jar"
                       echo ""
                       echo "Review all findings in Harness STO dashboard"
