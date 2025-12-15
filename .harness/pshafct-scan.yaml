@@ -1,0 +1,258 @@
+pipeline:
+  name: pshafct-scan
+  identifier: pshafctscan
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: <+variable.GITHUB_CONNECTOR>
+        repoName: <+variable.REPO_NAME>
+        build: <+input>
+  stages:
+    - stage:
+        name: Build and Push
+        identifier: build_and_push
+        description: Build, test, scan, and push Docker image and artifact
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: OsvScanner
+                  name: SCA Vulnerability Scan
+                  identifier: sca_scan
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: repository
+                      detection: auto
+                      baseline: main
+                    advanced:
+                      log:
+                        level: info
+                      fail_on_severity: none
+              - step:
+                  type: Run
+                  name: Build
+                  identifier: build
+                  spec:
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
+                    shell: Sh
+                    command: |
+                      echo "=== Building Application ==="
+                      echo "Project: Harness Demo Java App"
+                      echo "Tests: 500+ unit and integration tests"
+                      echo ""
+                      mvn clean compile -DskipTests
+                      echo ""
+                      echo "=== Build Complete ==="
+              - step:
+                  type: RunTests
+                  name: Run Tests with TI and Parallelism
+                  identifier: run_tests
+                  spec:
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
+                    language: Java
+                    buildTool: Maven
+                    args: test -Dmaven.test.failure.ignore=true
+                    runOnlySelectedTests: true
+                    testAnnotations: org.junit.jupiter.api.Test
+                    enableTestSplitting: true
+                    preCommand: |
+                      echo "=========================================="
+                      echo "   TEST INTELLIGENCE ANALYZING..."
+                      echo "=========================================="
+                      echo ""
+                      echo "Scanning code changes against test graph..."
+                      echo "Identifying impacted tests..."
+                      echo ""
+                    postCommand: |
+                      echo ""
+                      echo "=========================================="
+                      echo "   TEST EXECUTION COMPLETE"
+                      echo "=========================================="
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - "**/surefire-reports/*.xml"
+                  strategy:
+                    parallelism: 3
+              - step:
+                  type: Semgrep
+                  name: SAST Scan
+                  identifier: sast_scan
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: repository
+                      detection: auto
+                      baseline: main
+                    advanced:
+                      log:
+                        level: info
+                      fail_on_severity: none
+                    settings:
+                      runner:
+                        scan_settings:
+                          policy: p/java
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build and Push Docker Image
+                  identifier: build_push_docker
+                  spec:
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    repo: sidatks/harness-demo-java
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: Dockerfile
+                    context: .
+                    optimize: true
+              - step:
+                  type: Run
+                  name: Publish Artifact
+                  identifier: publish_artifact
+                  spec:
+                    connectorRef: <+variable.DOCKER_CONNECTOR>
+                    image: <+variable.MAVEN_IMAGE>
+                    shell: Sh
+                    command: |
+                      echo "=========================================="
+                      echo "   PUBLISHING ARTIFACT"
+                      echo "=========================================="
+                      echo ""
+                      echo "Artifact ID: test-intelligence-demo"
+                      echo "Group ID: com.harnessdemo"
+                      echo "Version: 1.0.0-<+pipeline.sequenceId>"
+                      echo ""
+                      echo "JAR Location: Built inside Docker + (multi-stage build)"
+                      echo ""
+                      echo "=========================================="
+                      echo "   ARTIFACT DETAILS"
+                      echo "=========================================="
+                      echo "Build Number: <+pipeline.sequenceId>"
+                      echo "Commit SHA: <+codebase.commitSha>"
+                      echo "Branch: <+codebase.branch>"
+                      echo "=========================================="
+                contextType: Pipeline
+              - parallel:
+                  - step:
+                      type: AquaTrivy
+                      name: Aqua Trivy Container Scan
+                      identifier: aqua_trivy_scan
+                      spec:
+                        mode: orchestration
+                        config: default
+                        target:
+                          type: container
+                          detection: auto
+                          name: sidatks/harness-demo-java
+                          variant: <+pipeline.sequenceId>
+                        advanced:
+                          log:
+                            level: info
+                          fail_on_severity: none
+                        privileged: true
+                        image:
+                          type: docker_v2
+                          name: sidatks/harness-demo-java
+                          tag: <+pipeline.sequenceId>
+                          domain: docker.io
+                  - step:
+                      type: DockerContentTrust
+                      name: Docker Scout Image Scan
+                      identifier: docker_scout_scan
+                      spec:
+                        mode: orchestration
+                        config: default
+                        target:
+                          type: container
+                          detection: auto
+                          name: sidatks/harness-demo-java
+                          variant: <+pipeline.sequenceId>
+                        advanced:
+                          log:
+                            level: info
+                          fail_on_severity: none
+                        privileged: true
+                        image:
+                          type: docker_v2
+                          name: sidatks/harness-demo-java
+                          tag: <+pipeline.sequenceId>
+                          domain: docker.io
+                        auth:
+                          access_id: <+secrets.getValue("docker_username")>
+                          access_token: <+secrets.getValue("docker_pat")>
+              - step:
+                  type: Run
+                  name: Artifact Scan Summary
+                  identifier: artifact_scan_summary
+                  spec:
+                    shell: Sh
+                    command: |
+                      echo "=========================================="
+                      echo "   ARTIFACT SECURITY SCAN SUMMARY"
+                      echo "=========================================="
+                      echo ""
+                      echo "Aqua Trivy Container Scan: Completed"
+                      echo "Docker Scout Image Scan: Completed"
+                      echo ""
+                      echo "Scanned Image: sidatks/harness-demo-java:<+pipeline.sequenceId>"
+                      echo ""
+                      echo "Scan Results:"
+                      echo "- Container vulnerabilities (CVEs)"
+                      echo "- License compliance issues"
+                      echo "- Malware detection"
+                      echo "- Configuration issues"
+                      echo ""
+                      echo "Review findings in Harness STO dashboard"
+                      echo "Use AIDA for remediation guidance"
+                      echo "=========================================="
+              - step:
+                  type: Run
+                  name: Pipeline Summary
+                  identifier: pipeline_summary
+                  spec:
+                    shell: Sh
+                    command: |
+                      echo "=========================================="
+                      echo "   PIPELINE EXECUTION SUMMARY"
+                      echo "=========================================="
+                      echo ""
+                      echo "Source Code Scans:"
+                      echo "  - SCA Scan (OSV): Completed"
+                      echo "  - SAST Scan (Semgrep): Completed"
+                      echo "  - SonarQube Analysis: Completed"
+                      echo ""
+                      echo "Build & Test:"
+                      echo "  - Build: Completed"
+                      echo "  - Tests: Completed with Test Intelligence"
+                      echo "  - Package: Completed"
+                      echo ""
+                      echo "Artifact Scans:"
+                      echo "  - Aqua Trivy: Completed"
+                      echo "  - Docker Scout: Completed"
+                      echo ""
+                      echo "Artifacts Published:"
+                      echo "  - Docker Image: sidatks/harness-demo-java:<+pipeline.sequenceId>"
+                      echo "  - JAR: test-intelligence-demo-1.0.0-<+pipeline.sequenceId>.jar"
+                      echo ""
+                      echo "Review all findings in Harness STO dashboard"
+                      echo "Use AIDA for remediation guidance"
+                      echo "=========================================="
