@@ -1,4 +1,17 @@
-# Simple Dockerfile - uses pre-built JAR from pipeline
+# Multi-stage build for Harness Demo Java Application
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+
+WORKDIR /app
+
+# Copy pom.xml and download dependencies (cached layer)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B || true
+
+# Copy source code and build
+COPY src ./src
+RUN mvn package -DskipTests -B
+
+# Runtime stage
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
@@ -6,8 +19,8 @@ WORKDIR /app
 # Create non-root user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copy the pre-built JAR from pipeline (target directory)
-COPY target/*.jar app.jar
+# Copy the built JAR from builder stage
+COPY --from=builder /app/target/*.jar app.jar
 
 # Set ownership
 RUN chown -R appuser:appgroup /app
