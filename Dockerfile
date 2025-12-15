@@ -1,23 +1,4 @@
-# Multi-stage build for Harness Demo Java Application
-FROM eclipse-temurin:17-jdk-alpine AS builder
-
-WORKDIR /app
-
-# Copy Maven wrapper and pom.xml
-COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
-
-# Download dependencies (cached layer)
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B || true
-
-# Copy source code
-COPY src ./src
-
-# Build the application
-RUN ./mvnw package -DskipTests -B || mvn package -DskipTests -B
-
-# Runtime stage
+# Simple Dockerfile - uses pre-built JAR from pipeline
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
@@ -25,8 +6,8 @@ WORKDIR /app
 # Create non-root user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copy the built JAR from builder stage
-COPY --from=builder /app/target/*.jar app.jar
+# Copy the pre-built JAR from pipeline (target directory)
+COPY target/*.jar app.jar
 
 # Set ownership
 RUN chown -R appuser:appgroup /app
