@@ -186,7 +186,7 @@ pipeline:
                       identifier: build_push_docker
                       spec:
                         connectorRef: <+variable.DOCKER_CONNECTOR>
-                        repo: sidatkstx/harness-demo-java
+                        repo: sidatks/harness-demo-java
                         tags:
                           - <+pipeline.sequenceId>
                           - latest
@@ -238,7 +238,7 @@ pipeline:
                       echo "SonarQube: Completed"
                       echo "Package: Completed"
                       echo ""
-                      echo "Docker Image: sidatkstx/harness-demo-java:<+pipeline.sequenceId>"
+                      echo "Docker Image: sidatks/harness-demo-java:<+pipeline.sequenceId>"
                       echo "Artifact: test-intelligence-demo-1.0.0-<+pipeline.sequenceId>.jar"
                       echo ""
                       echo "Review findings in Harness STO dashboard"
