@@ -124,7 +124,7 @@ pipeline:
 
                       # JFrog target registry
                       JFROG_REGISTRY="trial49t01l.jfrog.io"
-                      TARGET_REPO="harness-demo-java"
+                      TARGET_REPO="tieg-hrns-harness-demo-java"
                       BRANCH="<+codebase.branch>"
 
                       echo "Source: docker.io/${SOURCE_IMAGE}"
@@ -156,7 +156,7 @@ pipeline:
                       echo "=========================================="
                       echo "   PUBLISHED TO JFROG"
                       echo "=========================================="
-                      echo "Images pushed:"
+                      echo "Images pushed to virtual repo: ${TARGET_REPO}"
                       echo "  - ${JFROG_REGISTRY}/${TARGET_REPO}:${BRANCH}"
                       echo "  - ${JFROG_REGISTRY}/${TARGET_REPO}:latest"
                       echo "  - ${JFROG_REGISTRY}/${TARGET_REPO}:<+pipeline.sequenceId>"
@@ -213,9 +213,9 @@ pipeline:
                       echo "    - sidatks/harness-demo-java:latest"
                       echo ""
                       echo "  JFrog Artifactory:"
-                      echo "    - trial49t01l.jfrog.io/harness-demo-java:<+codebase.branch>"
-                      echo "    - trial49t01l.jfrog.io/harness-demo-java:latest"
-                      echo "    - trial49t01l.jfrog.io/harness-demo-java:<+pipeline.sequenceId>"
+                      echo "    - trial49t01l.jfrog.io/tieg-hrns-harness-demo-java:<+codebase.branch>"
+                      echo "    - trial49t01l.jfrog.io/tieg-hrns-harness-demo-java:latest"
+                      echo "    - trial49t01l.jfrog.io/tieg-hrns-harness-demo-java:<+pipeline.sequenceId>"
                       echo ""
                       echo "Review findings in Harness STO dashboard"
                       echo "=========================================="
